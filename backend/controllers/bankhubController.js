@@ -93,6 +93,7 @@ const transactions = async (req, res) => {
             },
         };
         const response = await axios(config);
+
         if (response.data.transactions.length === 0)
             return res.status(404).json({ err: "Không lấy được giao dịch" });
         const transactionsData = JSON.stringify(response.data.transactions);
