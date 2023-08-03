@@ -96,6 +96,38 @@ const transactions = async (req, res) => {
         if (response.data.transactions.length === 0)
             return res.status(404).json({ err: "Không lấy được giao dịch" });
         const transactionsData = JSON.stringify(response.data.transactions);
+        // Nếu isDonate = true thì xuất dữ liệu giao dịch ra file csv trong thư mục data
+        if (isDonate) {
+            const createCsvWriter = require("csv-writer").createObjectCsvWriter;
+
+            // Tạo tên tệp dựa trên thời gian hiện tại
+            const timestamp = new Date().getTime();
+            const fileName = `./data/data_${timestamp}.csv`;
+
+            const csvWriter = createCsvWriter({
+                path: fileName,
+                header: [
+                    { id: "reference", title: "reference" },
+                    { id: "transactionDate", title: "transactionDate" },
+                    { id: "transactionDateTime", title: "transactionDateTime" },
+                    { id: "amount", title: "amount" },
+                    { id: "description", title: "description" },
+                    { id: "runningBalance", title: "runningBalance" },
+                    { id: "virtualAccountNumber", title: "virtualAccountNumber" },
+                    { id: "virtualAccountName", title: "virtualAccountName" },
+                    { id: "paymentChannel", title: "paymentChannel" },
+                    { id: "counterAccountNumber", title: "counterAccountNumber" },
+                    { id: "counterAccountName", title: "counterAccountName" },
+                    { id: "counterAccountBankId", title: "counterAccountBankId" },
+                    { id: "counterAccountBankName", title: "counterAccountBankName" },
+                ],
+            });
+
+            csvWriter.writeRecords(response.data.transactions)
+                .then(() => console.log(`The CSV file (${fileName}) was written successfully`))
+                .catch((error) => console.error("Error writing CSV file:", error));
+
+        }
 
         let options = {
             mode: "json",
@@ -265,8 +297,8 @@ function predictSalary(allTransactions) {
         salary:
             Math.round(
                 predictedSalary.reduce((acc, value) => acc + value, 0) /
-                    predictedSalary.length /
-                    100
+                predictedSalary.length /
+                100
             ) * 100,
         transactions: filteredObject,
         lastSalaryDate: prevDate,
