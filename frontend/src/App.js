@@ -32,7 +32,7 @@ const textContainerStyle = {
     borderRadius: "8px",
     border: "1px solid #ccc",
     boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
-    textAlign: "center",
+    textAlign: "justify",
     height: "100%",
     padding: "50px",
     boxSizing: "border-box",
@@ -217,20 +217,28 @@ const App = () => {
                                 backgroundColor: "#fff",
                                 padding: 20,
                                 borderRadius: 8,
+                                display: "flex",
+                                flexDirection: "column",
+                                alignItems: "center",
                             }}
                         >
-                            <Typography variant="h5">
-                                Chọn một trong hai lựa chọn:
+                            <Typography variant="h6" align="center">
+                                Bạn có muốn đóng góp dữ liệu cho chúng tôi,
+                                chúng tôi đảm bảo sẻ bảo mật thông tin bạn cung
+                                cấp:
                             </Typography>
                             <Box
-                                mt={2}
-                                display="flex"
-                                justifyContent="space-between"
+                                style={{
+                                    display: "flex",
+                                    justifyContent: "center",
+                                    marginTop: 20,
+                                }}
                             >
                                 <Button
                                     variant="contained"
                                     color="primary"
                                     onClick={() => handleBanklink(true)}
+                                    style={{ marginRight: 200 }}
                                 >
                                     Đóng góp
                                 </Button>
