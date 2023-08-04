@@ -311,6 +311,9 @@ const App = () => {
                                                     <TableCell>
                                                         Số tiền
                                                     </TableCell>
+                                                    <TableCell>
+                                                        Nội dung chuyển khoản
+                                                    </TableCell>
                                                 </TableRow>
                                             </TableHead>
                                             <TableBody>
@@ -328,6 +331,11 @@ const App = () => {
                                                             <TableCell>
                                                                 {
                                                                     transaction.amount
+                                                                }
+                                                            </TableCell>
+                                                            <TableCell>
+                                                                {
+                                                                    transaction.description
                                                                 }
                                                             </TableCell>
                                                         </TableRow>
