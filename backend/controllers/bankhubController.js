@@ -29,11 +29,11 @@ const grant_token = (req, res) => {
     axios(config)
         .then((response) => {
             let bankhubLink = `https://dev.link.bankhub.dev/?redirectUri=${redirectUri}&grantToken=${response.data.grantToken}&iframe=true`;
-            res.json({ link: bankhubLink });
+            res.status(200).json({ link: bankhubLink });
         })
         .catch((error) => {
             // console.log(error.data);
-            res.json({ error: error });
+            res.status(500).json({ error: error });
         });
 };
 
@@ -59,11 +59,11 @@ const grant_exchange = (req, res) => {
     axios(config)
         .then((response) => {
             // console.log(JSON.stringify(response.data));
-            res.json({ accessToken: response.data.accessToken });
+            res.status(200).json({ accessToken: response.data.accessToken });
         })
         .catch((error) => {
             // console.log(error.data);
-            res.json({ error: error });
+            res.status(500).json({ error: error });
         });
 };
 
@@ -172,11 +172,11 @@ const kyc = (req, res) => {
 
     axios(config)
         .then((response) => {
-            res.json(response.data);
+            res.status(200).json(response.data);
         })
         .catch((error) => {
             // console.log(error);
-            res.json({ error: error });
+            res.status(500).json({ error: error });
         });
 };
 
