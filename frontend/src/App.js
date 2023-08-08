@@ -567,7 +567,7 @@ const App = () => {
                                         component={Paper}
                                         style={{
                                             // same height with box above
-                                            maxHeight: "300px",
+                                            maxHeight: "400px",
                                             overflowY: "auto",
                                             padding: "0 20px",
                                             width: "100%",
@@ -578,13 +578,13 @@ const App = () => {
                                             <TableHead>
                                                 <TableRow>
                                                     <TableCell>
-                                                        Ngày giao dịch
+                                                        Ngày
                                                     </TableCell>
                                                     <TableCell>
                                                         Số tiền
                                                     </TableCell>
                                                     <TableCell>
-                                                        Nội dung chuyển khoản
+                                                        Nội dung
                                                     </TableCell>
                                                 </TableRow>
                                             </TableHead>
