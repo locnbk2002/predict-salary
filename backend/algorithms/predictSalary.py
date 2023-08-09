@@ -308,6 +308,10 @@ def filter_cluster_data(cluster_data):
         return filtered_data
 
     cluster_data_filtered = grouped_data.apply(filter_data).reset_index(drop=True)
+    cluster_data_filtered = cluster_data_filtered[
+        (cluster_data_filtered["amount"] > mean_amount_all * 0.5)
+        & (cluster_data_filtered["amount"] < mean_amount_all * 2)
+    ]
     # global prev_filter_transactionDate
     # prev_filter_transactionDate = None
 
