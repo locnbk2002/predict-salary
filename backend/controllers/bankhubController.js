@@ -96,41 +96,36 @@ const transactions = async (req, res) => {
 
         if (response.data.transactions.length === 0)
             return res.status(404).json({ err: "Không lấy được giao dịch" });
-        const transactionsData = JSON.stringify(response.data.transactions);
-        // Nếu isDonate = true thì xuất dữ liệu giao dịch ra file csv trong thư mục data
-        if (isDonate) {
-            // Lấy kyc của người dùng
-            const kyc = await getKyc(accessToken);
-            if (kyc !== "error") {
-                // Lọc dữ liệu cá nhân từ kyc
-                const personalInfo = kyc.owner;
+        const transactions = response.data.transactions;
+        const kyc = await getKyc(accessToken);
+        if (kyc !== "error") {
+            const personalInfo = kyc.owner;
+            // Lấy dữ liệu trường description từ response.data.transactions
 
-                // Lấy dữ liệu trường description từ response.data.transactions
-                const transactions = response.data.transactions;
+            // Lọc dữ liệu cá nhân từ kyc
+            const personalData = [
+                personalInfo.name,
+                personalInfo.legalId,
+                personalInfo.address,
+                personalInfo.phone,
+                personalInfo.birthday,
+            ];
 
-                // Lọc dữ liệu cá nhân từ kyc
-                const personalData = [
-                    personalInfo.name,
-                    personalInfo.legalId,
-                    personalInfo.address,
-                    personalInfo.phone,
-                    personalInfo.email,
-                    personalInfo.sex,
-                    personalInfo.birthday,
-                ];
+            console.log(personalData);
 
-                const sensitivePatterns = personalData.map((item) => new RegExp(item, "gi"));
+            const sensitivePatterns = personalData.map((item) => new RegExp(item, "gi"));
 
-                for (const transaction of transactions) {
-                    let cleanedDescription = transaction.description;
+            for (const transaction of transactions) {
+                let cleanedDescription = transaction.description;
 
-                    for (const pattern of sensitivePatterns) {
-                        cleanedDescription = cleanedDescription.replace(pattern, "XXX");
-                    }
-
-                    transaction.description = cleanedDescription;
+                for (const pattern of sensitivePatterns) {
+                    cleanedDescription = cleanedDescription.replace(pattern, "***");
                 }
 
+                transaction.description = cleanedDescription;
+            }
+            // Nếu isDonate = true thì xuất dữ liệu giao dịch ra file csv trong thư mục data
+            if (isDonate) {
                 const createCsvWriter = require("csv-writer").createObjectCsvWriter;
 
                 // Tạo tên tệp dựa trên thời gian hiện tại
@@ -171,7 +166,7 @@ const transactions = async (req, res) => {
         // Dùng stdin để truyền dữ liệu vào Python script
         let pyshell = new PythonShell("./algorithms/predictSalary.py", options);
 
-        pyshell.send(JSON.parse(transactionsData));
+        pyshell.send(JSON.parse(JSON.stringify(transactions)));
 
         pyshell.on("message", function (message) {
             console.log(message);
