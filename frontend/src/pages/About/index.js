@@ -18,7 +18,7 @@ const About = () => {
                     flex: 1,
                     display: "flex",
                     flexDirection: "column",
-                    padding: "2%",
+                    padding: "5%",
                     textAlign: "justify",
                 }}
             >

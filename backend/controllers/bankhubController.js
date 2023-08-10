@@ -99,34 +99,67 @@ const transactions = async (req, res) => {
         const transactionsData = JSON.stringify(response.data.transactions);
         // Nếu isDonate = true thì xuất dữ liệu giao dịch ra file csv trong thư mục data
         if (isDonate) {
-            const createCsvWriter = require("csv-writer").createObjectCsvWriter;
+            // Lấy kyc của người dùng
+            const kyc = await getKyc(accessToken);
+            if (kyc !== "error") {
+                // Lọc dữ liệu cá nhân từ kyc
+                const personalInfo = kyc.owner;
 
-            // Tạo tên tệp dựa trên thời gian hiện tại
-            const timestamp = new Date().getTime();
-            const fileName = `./data/data_${timestamp}.csv`;
+                // Lấy dữ liệu trường description từ response.data.transactions
+                const transactions = response.data.transactions;
 
-            const csvWriter = createCsvWriter({
-                path: fileName,
-                header: [
-                    { id: "reference", title: "reference" },
-                    { id: "transactionDate", title: "transactionDate" },
-                    { id: "transactionDateTime", title: "transactionDateTime" },
-                    { id: "amount", title: "amount" },
-                    { id: "description", title: "description" },
-                    { id: "runningBalance", title: "runningBalance" },
-                    { id: "virtualAccountNumber", title: "virtualAccountNumber" },
-                    { id: "virtualAccountName", title: "virtualAccountName" },
-                    { id: "paymentChannel", title: "paymentChannel" },
-                    { id: "counterAccountNumber", title: "counterAccountNumber" },
-                    { id: "counterAccountName", title: "counterAccountName" },
-                    { id: "counterAccountBankId", title: "counterAccountBankId" },
-                    { id: "counterAccountBankName", title: "counterAccountBankName" },
-                ],
-            });
+                // Lọc dữ liệu cá nhân từ kyc
+                const personalData = [
+                    personalInfo.name,
+                    personalInfo.legalId,
+                    personalInfo.address,
+                    personalInfo.phone,
+                    personalInfo.email,
+                    personalInfo.sex,
+                    personalInfo.birthday,
+                ];
 
-            csvWriter.writeRecords(response.data.transactions)
-                .then(() => console.log(`The CSV file (${fileName}) was written successfully`))
-                .catch((error) => console.error("Error writing CSV file:", error));
+                const sensitivePatterns = personalData.map((item) => new RegExp(item, "gi"));
+
+                for (const transaction of transactions) {
+                    let cleanedDescription = transaction.description;
+
+                    for (const pattern of sensitivePatterns) {
+                        cleanedDescription = cleanedDescription.replace(pattern, "XXX");
+                    }
+
+                    transaction.description = cleanedDescription;
+                }
+
+                const createCsvWriter = require("csv-writer").createObjectCsvWriter;
+
+                // Tạo tên tệp dựa trên thời gian hiện tại
+                const timestamp = new Date().getTime();
+                const fileName = `./data/data_${timestamp}.csv`;
+
+                const csvWriter = createCsvWriter({
+                    path: fileName,
+                    header: [
+                        { id: "reference", title: "reference" },
+                        { id: "transactionDate", title: "transactionDate" },
+                        { id: "transactionDateTime", title: "transactionDateTime" },
+                        { id: "amount", title: "amount" },
+                        { id: "description", title: "description" },
+                        { id: "runningBalance", title: "runningBalance" },
+                        { id: "virtualAccountNumber", title: "virtualAccountNumber" },
+                        { id: "virtualAccountName", title: "virtualAccountName" },
+                        { id: "paymentChannel", title: "paymentChannel" },
+                        { id: "counterAccountNumber", title: "counterAccountNumber" },
+                        { id: "counterAccountName", title: "counterAccountName" },
+                        { id: "counterAccountBankId", title: "counterAccountBankId" },
+                        { id: "counterAccountBankName", title: "counterAccountBankName" },
+                    ],
+                });
+
+                csvWriter.writeRecords(transactions)
+                    .then(() => console.log(`The CSV file (${fileName}) was written successfully`))
+                    .catch((error) => console.error("Error writing CSV file:", error));
+            }
 
         }
 
@@ -154,6 +187,28 @@ const transactions = async (req, res) => {
         res.status(500).json({ error: error });
     }
 };
+
+async function getKyc(accessToken) {
+    try {
+        const config = {
+            method: "get",
+            maxBodyLength: Infinity,
+            url: "https://sandbox.bankhub.dev/auth",
+            headers: {
+                Accept: "application/json",
+                "x-client-id": process.env.CLIENT_ID,
+                "x-secret-key": process.env.SECRET_KEY,
+                Authorization: accessToken,
+            },
+        };
+
+        const response = await axios(config);
+        return response.data;
+    } catch (error) {
+        console.log(error);
+        return "error";
+    }
+}
 
 const kyc = (req, res) => {
     let accessToken = req.body.accessToken;
