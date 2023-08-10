@@ -6,6 +6,7 @@ dotenv.config({ path: `.env.local` });
 
 const grant_token = (req, res) => {
     let redirectUri = req.headers.origin;
+
     // console.log(redirectUri);
     let data = JSON.stringify({
         scopes: "identity,transaction",
@@ -28,11 +29,10 @@ const grant_token = (req, res) => {
 
     axios(config)
         .then((response) => {
-            let bankhubLink = `https://dev.link.bankhub.dev/?redirectUri=${redirectUri}&grantToken=${response.data.grantToken}&iframe=true`;
+            let bankhubLink = `https://dev.link.bankhub.dev/?redirectUri=${redirectUri}&grantToken=${response.data.grantToken}&iframe=true&feature=personal`;
             res.status(200).json({ link: bankhubLink });
         })
         .catch((error) => {
-            // console.log(error.data);
             res.status(500).json({ error: error });
         });
 };
