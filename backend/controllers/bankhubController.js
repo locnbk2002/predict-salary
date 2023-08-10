@@ -6,6 +6,7 @@ dotenv.config({ path: `.env.local` });
 
 const grant_token = (req, res) => {
     let redirectUri = req.headers.origin;
+
     // console.log(redirectUri);
     let data = JSON.stringify({
         scopes: "identity,transaction",
@@ -28,11 +29,10 @@ const grant_token = (req, res) => {
 
     axios(config)
         .then((response) => {
-            let bankhubLink = `https://dev.link.bankhub.dev/?redirectUri=${redirectUri}&grantToken=${response.data.grantToken}&iframe=true`;
+            let bankhubLink = `https://dev.link.bankhub.dev/?redirectUri=${redirectUri}&grantToken=${response.data.grantToken}&iframe=true&feature=personal`;
             res.status(200).json({ link: bankhubLink });
         })
         .catch((error) => {
-            // console.log(error.data);
             res.status(500).json({ error: error });
         });
 };
@@ -114,20 +114,38 @@ const transactions = async (req, res) => {
                     { id: "amount", title: "amount" },
                     { id: "description", title: "description" },
                     { id: "runningBalance", title: "runningBalance" },
-                    { id: "virtualAccountNumber", title: "virtualAccountNumber" },
+                    {
+                        id: "virtualAccountNumber",
+                        title: "virtualAccountNumber",
+                    },
                     { id: "virtualAccountName", title: "virtualAccountName" },
                     { id: "paymentChannel", title: "paymentChannel" },
-                    { id: "counterAccountNumber", title: "counterAccountNumber" },
+                    {
+                        id: "counterAccountNumber",
+                        title: "counterAccountNumber",
+                    },
                     { id: "counterAccountName", title: "counterAccountName" },
-                    { id: "counterAccountBankId", title: "counterAccountBankId" },
-                    { id: "counterAccountBankName", title: "counterAccountBankName" },
+                    {
+                        id: "counterAccountBankId",
+                        title: "counterAccountBankId",
+                    },
+                    {
+                        id: "counterAccountBankName",
+                        title: "counterAccountBankName",
+                    },
                 ],
             });
 
-            csvWriter.writeRecords(response.data.transactions)
-                .then(() => console.log(`The CSV file (${fileName}) was written successfully`))
-                .catch((error) => console.error("Error writing CSV file:", error));
-
+            csvWriter
+                .writeRecords(response.data.transactions)
+                .then(() =>
+                    console.log(
+                        `The CSV file (${fileName}) was written successfully`
+                    )
+                )
+                .catch((error) =>
+                    console.error("Error writing CSV file:", error)
+                );
         }
 
         let options = {
@@ -298,8 +316,8 @@ function predictSalary(allTransactions) {
         salary:
             Math.round(
                 predictedSalary.reduce((acc, value) => acc + value, 0) /
-                predictedSalary.length /
-                100
+                    predictedSalary.length /
+                    100
             ) * 100,
         transactions: filteredObject,
         lastSalaryDate: prevDate,
